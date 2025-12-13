@@ -1,5 +1,6 @@
 package com.Uday.GroupMoney.Services;
 
+import com.Uday.GroupMoney.Entities.Profile;
 import com.Uday.GroupMoney.Entities.User;
 import com.Uday.GroupMoney.Repositories.AuthRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class AuthService {
     @Autowired
     HashingService hashingService;
 
+    @Autowired
+    ProfileService profileService;
+
     public int signIn(String username, String password) {
         User user = authRepo.findById(username).orElse(null);
         if (user!=null) {
@@ -33,6 +37,10 @@ public class AuthService {
     public boolean signUp(User user) {
         if (authRepo.existsById(user.getUsername())) return false;
         user.setPassword(hashingService.getHashedString(user.getPassword()));
+        Profile profile = new Profile();
+        profile.setUser(user);
+        profileService.save(profile);
+        user.setProfile(profile);
         authRepo.save(user);
         return true;
     }
